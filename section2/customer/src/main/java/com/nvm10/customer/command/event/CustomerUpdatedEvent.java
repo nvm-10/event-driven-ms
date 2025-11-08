@@ -3,7 +3,7 @@ package com.nvm10.customer.command.event;
 import lombok.Data;
 
 @Data
-public class CustomerUpdateEvent {
+public class CustomerUpdatedEvent {
 
     public String customerId;
     public String name;

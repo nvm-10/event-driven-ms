@@ -1,5 +1,6 @@
 package com.nvm10.customer.mapper;
 
+import com.nvm10.customer.command.event.CustomerUpdatedEvent;
 import com.nvm10.customer.dto.CustomerDto;
 import com.nvm10.customer.entity.Customer;
 
@@ -22,6 +23,14 @@ public class CustomerMapper {
         if(customerDto.isActiveSw()) {
             customer.setActiveSw(customerDto.isActiveSw());
         }
+        return customer;
+    }
+
+    public static Customer mapEventToCustomer(CustomerUpdatedEvent customerUpdatedEvent, Customer customer) {
+        customer.setName(customerUpdatedEvent.getName());
+        customer.setEmail(customerUpdatedEvent.getEmail());
+        customer.setMobileNumber(customerUpdatedEvent.getMobileNumber());
+
         return customer;
     }
 

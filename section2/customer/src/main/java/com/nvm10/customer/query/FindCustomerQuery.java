@@ -7,5 +7,5 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 public class FindCustomerQuery {
 
     @TargetAggregateIdentifier
-    public final String customerId;
+    public final String mobileNumber;
 }

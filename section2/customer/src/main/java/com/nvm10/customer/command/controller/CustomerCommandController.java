@@ -4,7 +4,6 @@ import com.nvm10.customer.command.CreateCustomerCommand;
 import com.nvm10.customer.command.DeleteCustomerCommand;
 import com.nvm10.customer.command.UpdateCustomerCommand;
 import com.nvm10.customer.constants.CustomerConstants;
-import com.nvm10.customer.controller.CustomerController;
 import com.nvm10.customer.dto.CustomerDto;
 import com.nvm10.customer.dto.ResponseDto;
 import jakarta.validation.Valid;
@@ -25,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomerCommandController {
 
-    public CommandGateway commandGateway;
+    private final CommandGateway commandGateway;
 
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createCustomer(@Valid @RequestBody CustomerDto customerDto) {
