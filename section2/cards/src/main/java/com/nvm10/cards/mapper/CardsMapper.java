@@ -1,5 +1,7 @@
 package com.nvm10.cards.mapper;
 
+import com.nvm10.cards.command.UpdateCardCommand;
+import com.nvm10.cards.command.event.CardUpdatedEvent;
 import com.nvm10.cards.dto.CardsDto;
 import com.nvm10.cards.entity.Cards;
 
@@ -21,6 +23,14 @@ public class CardsMapper {
         cards.setTotalLimit(cardsDto.getTotalLimit());
         cards.setAvailableAmount(cardsDto.getAvailableAmount());
         cards.setAmountUsed(cardsDto.getAmountUsed());
+        return cards;
+    }
+
+    public static Cards mapEventToCards(CardUpdatedEvent event, Cards cards) {
+        cards.setCardType(event.getCardType());
+        cards.setTotalLimit(event.getTotalLimit());
+        cards.setAvailableAmount(event.getAvailableAmount());
+        cards.setAmountUsed(event.getAmountUsed());
         return cards;
     }
 

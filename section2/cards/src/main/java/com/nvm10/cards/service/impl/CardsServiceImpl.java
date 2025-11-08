@@ -1,5 +1,6 @@
 package com.nvm10.cards.service.impl;
 
+import com.nvm10.cards.command.event.CardUpdatedEvent;
 import com.nvm10.cards.constants.CardsConstants;
 import com.nvm10.cards.dto.CardsDto;
 import com.nvm10.cards.entity.Cards;
@@ -63,15 +64,15 @@ public class CardsServiceImpl implements ICardsService {
     }
 
     /**
-     * @param cardsDto - CardsDto Object
+     * @param cardUpdatedEvent - CardUpdatedEvent Object
      * @return boolean indicating if the update of card details is successful or not
      */
     @Override
-    public boolean updateCard(CardsDto cardsDto) {
-        Cards card = cardsRepository.findByMobileNumberAndActiveSw(cardsDto.getMobileNumber(),
+    public boolean updateCard(CardUpdatedEvent cardUpdatedEvent) {
+        Cards card = cardsRepository.findByMobileNumberAndActiveSw(cardUpdatedEvent.getMobileNumber(),
                 CardsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Card", "CardNumber",
-                cardsDto.getCardNumber().toString()));
-        CardsMapper.mapToCards(cardsDto, card);
+                cardUpdatedEvent.getCardNumber().toString()));
+        CardsMapper.mapEventToCards(cardUpdatedEvent, card);
         cardsRepository.save(card);
         return true;
     }

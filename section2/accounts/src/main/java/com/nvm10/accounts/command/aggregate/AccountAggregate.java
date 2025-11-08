@@ -6,7 +6,6 @@ import com.nvm10.accounts.command.UpdateAccountCommand;
 import com.nvm10.accounts.command.event.AccountCreatedEvent;
 import com.nvm10.accounts.command.event.AccountDeletedEvent;
 import com.nvm10.accounts.command.event.AccountUpdatedEvent;
-import com.nvm10.accounts.entity.Accounts;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateLifecycle;

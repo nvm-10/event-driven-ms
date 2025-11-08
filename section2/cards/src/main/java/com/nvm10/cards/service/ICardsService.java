@@ -1,5 +1,6 @@
 package com.nvm10.cards.service;
 
+import com.nvm10.cards.command.event.CardUpdatedEvent;
 import com.nvm10.cards.dto.CardsDto;
 
 public interface ICardsService {
@@ -19,10 +20,10 @@ public interface ICardsService {
 
     /**
      *
-     * @param cardsDto - CardsDto Object
+     * @param cardUpdatedEvent - CardUpdatedEvent Object
      * @return boolean indicating if the update of card details is successful or not
      */
-    boolean updateCard(CardsDto cardsDto);
+    boolean updateCard(CardUpdatedEvent cardUpdatedEvent);
 
     /**
      *
