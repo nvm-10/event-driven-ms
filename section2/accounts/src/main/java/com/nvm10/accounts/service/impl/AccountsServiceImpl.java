@@ -1,5 +1,6 @@
 package com.nvm10.accounts.service.impl;
 
+import com.nvm10.accounts.command.event.AccountUpdatedEvent;
 import com.nvm10.accounts.constants.AccountsConstants;
 import com.nvm10.accounts.dto.AccountsDto;
 import com.nvm10.accounts.entity.Accounts;
@@ -62,15 +63,15 @@ public class AccountsServiceImpl  implements IAccountsService {
     }
 
     /**
-     * @param accountsDto - AccountsDto Object
+     * @param accountUpdatedEvent - AccountUpdatedEvent Object
      * @return boolean indicating if the update of Account details is successful or not
      */
     @Override
-    public boolean updateAccount(AccountsDto accountsDto) {
-        Accounts account = accountsRepository.findByMobileNumberAndActiveSw(accountsDto.getMobileNumber(),
+    public boolean updateAccount(AccountUpdatedEvent accountUpdatedEvent) {
+        Accounts account = accountsRepository.findByMobileNumberAndActiveSw(accountUpdatedEvent.getMobileNumber(),
                 AccountsConstants.ACTIVE_SW).orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber",
-                accountsDto.getMobileNumber()));
-        AccountsMapper.mapToAccounts(accountsDto, account);
+                accountUpdatedEvent.getMobileNumber()));
+        AccountsMapper.mapEventToAccounts(accountUpdatedEvent, account);
         accountsRepository.save(account);
         return  true;
     }

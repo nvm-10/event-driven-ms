@@ -1,7 +1,9 @@
 package com.nvm10.accounts.service;
 
 
+import com.nvm10.accounts.command.event.AccountUpdatedEvent;
 import com.nvm10.accounts.dto.AccountsDto;
+import com.nvm10.accounts.entity.Accounts;
 
 public interface IAccountsService {
 
@@ -20,10 +22,10 @@ public interface IAccountsService {
 
     /**
      *
-     * @param accountsDto - AccountsDto Object
+     * @param  accountUpdatedEvent- AccountUpdatedEvent Object
      * @return boolean indicating if the update of Account details is successful or not
      */
-    boolean updateAccount(AccountsDto accountsDto);
+    boolean updateAccount(AccountUpdatedEvent accountUpdatedEvent);
 
     /**
      *

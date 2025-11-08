@@ -3,7 +3,6 @@ package com.nvm10.customer.query.projection;
 import com.nvm10.customer.command.event.CustomerCreatedEvent;
 import com.nvm10.customer.command.event.CustomerUpdatedEvent;
 import com.nvm10.customer.entity.Customer;
-import com.nvm10.customer.repository.CustomerRepository;
 import com.nvm10.customer.service.ICustomerService;
 import lombok.AllArgsConstructor;
 import org.axonframework.config.ProcessingGroup;

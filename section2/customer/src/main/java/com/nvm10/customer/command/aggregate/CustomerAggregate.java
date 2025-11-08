@@ -7,7 +7,6 @@ import com.nvm10.customer.command.event.CustomerCreatedEvent;
 import com.nvm10.customer.command.event.CustomerDeletedEvent;
 import com.nvm10.customer.command.event.CustomerUpdatedEvent;
 import com.nvm10.customer.exception.ResourceNotFoundException;
-import com.nvm10.customer.repository.CustomerRepository;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.eventsourcing.eventstore.EventStore;
@@ -31,7 +30,7 @@ public class CustomerAggregate {
     public CustomerAggregate() {}
 
     @CommandHandler
-    public CustomerAggregate(CreateCustomerCommand command, CustomerRepository customerRepository) {
+    public CustomerAggregate(CreateCustomerCommand command) {
         CustomerCreatedEvent event = new CustomerCreatedEvent();
         BeanUtils.copyProperties(command, event);
         AggregateLifecycle.apply(event);
