@@ -1,5 +1,6 @@
 package com.nvm10.loans.service.impl;
 
+import com.nvm10.common.event.LoanDataChangeEvent;
 import com.nvm10.loans.constants.LoansConstants;
 import com.nvm10.loans.dto.LoansDto;
 import com.nvm10.loans.entity.Loans;
@@ -9,6 +10,7 @@ import com.nvm10.loans.mapper.LoansMapper;
 import com.nvm10.loans.repository.LoansRepository;
 import com.nvm10.loans.service.ILoansService;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +21,8 @@ import java.util.Random;
 public class LoansServiceImpl implements ILoansService {
 
     private LoansRepository loansRepository;
+
+    private final EventGateway eventGateway;
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -87,6 +91,10 @@ public class LoansServiceImpl implements ILoansService {
                 );
         loan.setActiveSw(LoansConstants.IN_ACTIVE_SW);
         loansRepository.save(loan);
+        LoanDataChangeEvent dataChangeEvent = new LoanDataChangeEvent();
+        dataChangeEvent.setMobileNumber(loan.getMobileNumber());
+        dataChangeEvent.setLoanNumber(null);
+        eventGateway.publish(dataChangeEvent);
         return true;
     }
 

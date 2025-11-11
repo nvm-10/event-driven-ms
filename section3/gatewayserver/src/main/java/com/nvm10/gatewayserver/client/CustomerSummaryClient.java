@@ -22,4 +22,5 @@ public interface CustomerSummaryClient {
 
     @GetExchange(value = "/nvm10/loans/api/fetch", accept = "application/json")
     Mono<ResponseEntity<LoansDto>> fetchLoanDetails(@RequestParam("mobileNumber") String mobileNumber);
+
 }

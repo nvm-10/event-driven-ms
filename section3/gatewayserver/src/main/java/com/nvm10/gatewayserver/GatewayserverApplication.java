@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 import java.time.LocalDateTime;
 
@@ -37,7 +38,12 @@ public class GatewayserverApplication {
                         .path("/nvm10/cards/**")
                         .filters(f -> f.rewritePath("/nvm10/cards/(?<segment>.*)", "/${segment}")
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
-                        .uri("lb://CARDS")).build();
+                        .uri("lb://CARDS"))
+                .route(p -> p
+                        .path("/nvm10/profile/**")
+                        .filters(f -> f.rewritePath("/nvm10/profile/(?<segment>.*)", "/${segment}")
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                        .uri("lb://PROFILE")).build();
 
 
     }

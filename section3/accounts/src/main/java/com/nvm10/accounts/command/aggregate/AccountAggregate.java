@@ -6,6 +6,7 @@ import com.nvm10.accounts.command.UpdateAccountCommand;
 import com.nvm10.accounts.command.event.AccountCreatedEvent;
 import com.nvm10.accounts.command.event.AccountDeletedEvent;
 import com.nvm10.accounts.command.event.AccountUpdatedEvent;
+import com.nvm10.common.event.AccountDataChangeEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateLifecycle;
@@ -29,7 +30,10 @@ public class AccountAggregate {
     public AccountAggregate(CreateAccountCommand createAccountCommand) {
         AccountCreatedEvent event = new AccountCreatedEvent();
         BeanUtils.copyProperties(createAccountCommand, event);
+        AccountDataChangeEvent dataChangeEvent = new AccountDataChangeEvent();
+        BeanUtils.copyProperties(createAccountCommand, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventSourcingHandler
@@ -47,7 +51,10 @@ public class AccountAggregate {
     public void on(UpdateAccountCommand command) {
         AccountUpdatedEvent event = new AccountUpdatedEvent();
         BeanUtils.copyProperties(command, event);
+        AccountDataChangeEvent dataChangeEvent = new AccountDataChangeEvent();
+        BeanUtils.copyProperties(command, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventSourcingHandler

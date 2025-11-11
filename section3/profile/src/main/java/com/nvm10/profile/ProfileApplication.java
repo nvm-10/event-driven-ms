@@ -1,15 +1,16 @@
 package com.nvm10.profile;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import com.nvm10.common.config.AxonConfig;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
+@Import(AxonConfig.class)
 public class ProfileApplication {
-
-    private CommandGateway commandGateway;
 
     public static void main(String[] args) {
         SpringApplication.run(ProfileApplication.class, args);

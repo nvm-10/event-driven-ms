@@ -9,7 +9,9 @@ import com.nvm10.cards.exception.ResourceNotFoundException;
 import com.nvm10.cards.mapper.CardsMapper;
 import com.nvm10.cards.repository.CardsRepository;
 import com.nvm10.cards.service.ICardsService;
+import com.nvm10.common.event.CardDataChangeEvent;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,6 +22,7 @@ import java.util.Random;
 public class CardsServiceImpl implements ICardsService {
 
     private CardsRepository cardsRepository;
+    private final EventGateway eventGateway;
 
     /**
      * @param mobileNumber - Mobile Number of the Customer
@@ -88,6 +91,10 @@ public class CardsServiceImpl implements ICardsService {
                 );
         card.setActiveSw(CardsConstants.IN_ACTIVE_SW);
         cardsRepository.save(card);
+        CardDataChangeEvent dataChangeEvent = new CardDataChangeEvent();
+        dataChangeEvent.setMobileNumber(card.getMobileNumber());
+        dataChangeEvent.setCardNumber(null);
+        eventGateway.publish(dataChangeEvent);
         return true;
     }
 

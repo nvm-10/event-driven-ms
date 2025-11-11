@@ -6,6 +6,7 @@ import com.nvm10.cards.command.UpdateCardCommand;
 import com.nvm10.cards.command.event.CardCreatedEvent;
 import com.nvm10.cards.command.event.CardDeletedEvent;
 import com.nvm10.cards.command.event.CardUpdatedEvent;
+import com.nvm10.common.event.CardDataChangeEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -31,7 +32,10 @@ public class CardAggregate {
     public CardAggregate(CreateCardCommand createCommand) {
         CardCreatedEvent event = new CardCreatedEvent();
         BeanUtils.copyProperties(createCommand, event);
+        CardDataChangeEvent dataChangeEvent = new CardDataChangeEvent();
+        BeanUtils.copyProperties(createCommand, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventSourcingHandler
@@ -43,7 +47,10 @@ public class CardAggregate {
     public void on(UpdateCardCommand updateCommand) {
         CardUpdatedEvent event = new CardUpdatedEvent();
         BeanUtils.copyProperties(updateCommand, event);
+        CardDataChangeEvent dataChangeEvent = new CardDataChangeEvent();
+        BeanUtils.copyProperties(updateCommand, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventSourcingHandler

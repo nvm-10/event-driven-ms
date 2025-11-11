@@ -1,5 +1,7 @@
 package com.nvm10.customer.service.impl;
 
+import com.nvm10.common.event.CustomerDataChangeEvent;
+import com.nvm10.customer.command.event.CustomerDeletedEvent;
 import com.nvm10.customer.command.event.CustomerUpdatedEvent;
 import com.nvm10.customer.constants.CustomerConstants;
 import com.nvm10.customer.dto.CustomerDto;
@@ -10,6 +12,7 @@ import com.nvm10.customer.mapper.CustomerMapper;
 import com.nvm10.customer.repository.CustomerRepository;
 import com.nvm10.customer.service.ICustomerService;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class CustomerServiceImpl implements ICustomerService {
 
     private CustomerRepository customerRepository;
+    private final EventGateway eventGateway;
 
     @Override
     public void createCustomer(Customer customer) {
@@ -56,6 +60,10 @@ public class CustomerServiceImpl implements ICustomerService {
         );
         customer.setActiveSw(CustomerConstants.IN_ACTIVE_SW);
         customerRepository.save(customer);
+        CustomerDataChangeEvent event = new CustomerDataChangeEvent();
+        event.setMobileNumber(customer.getMobileNumber());
+        event.setActiveSw(CustomerConstants.IN_ACTIVE_SW);
+        eventGateway.publish(event);
         return true;
     }
 

@@ -1,5 +1,6 @@
 package com.nvm10.customer.command.aggregate;
 
+import com.nvm10.common.event.CustomerDataChangeEvent;
 import com.nvm10.customer.command.CreateCustomerCommand;
 import com.nvm10.customer.command.DeleteCustomerCommand;
 import com.nvm10.customer.command.UpdateCustomerCommand;
@@ -33,7 +34,10 @@ public class CustomerAggregate {
     public CustomerAggregate(CreateCustomerCommand command) {
         CustomerCreatedEvent event = new CustomerCreatedEvent();
         BeanUtils.copyProperties(command, event);
+        CustomerDataChangeEvent dataChangeEvent = new CustomerDataChangeEvent();
+        BeanUtils.copyProperties(command, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventSourcingHandler
@@ -47,13 +51,12 @@ public class CustomerAggregate {
 
     @CommandHandler
     public void on(UpdateCustomerCommand command, EventStore eventStore) {
-        List<?> commands = eventStore.readEvents(command.getCustomerId()).asStream().toList();
-        if(commands.isEmpty()) {
-            throw new ResourceNotFoundException("Customer", "customerId", command.getCustomerId());
-        }
         CustomerUpdatedEvent event = new CustomerUpdatedEvent();
         BeanUtils.copyProperties(command, event);
+        CustomerDataChangeEvent dataChangeEvent = new CustomerDataChangeEvent();
+        BeanUtils.copyProperties(command, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventSourcingHandler

@@ -1,5 +1,6 @@
 package com.nvm10.loans.command.aggregate;
 
+import com.nvm10.common.event.LoanDataChangeEvent;
 import com.nvm10.loans.command.CreateLoanCommand;
 import com.nvm10.loans.command.DeleteLoanCommand;
 import com.nvm10.loans.command.UpdateLoanCommand;
@@ -31,7 +32,10 @@ public class LoanAggregate {
     public LoanAggregate(CreateLoanCommand command) {
         LoanCreatedEvent event = new LoanCreatedEvent();
         BeanUtils.copyProperties(command, event);
+        LoanDataChangeEvent dataChangeEvent = new LoanDataChangeEvent();
+        BeanUtils.copyProperties(command, dataChangeEvent);
         AggregateLifecycle.apply(event);
+        AggregateLifecycle.apply(dataChangeEvent);
     }
 
     @EventHandler
@@ -43,6 +47,8 @@ public class LoanAggregate {
     public void on(UpdateLoanCommand command) {
         LoanUpdatedEvent event = new LoanUpdatedEvent();
         BeanUtils.copyProperties(command, event);
+        LoanDataChangeEvent dataChangeEvent = new LoanDataChangeEvent();
+        BeanUtils.copyProperties(command, dataChangeEvent);
         AggregateLifecycle.apply(event);
     }
 

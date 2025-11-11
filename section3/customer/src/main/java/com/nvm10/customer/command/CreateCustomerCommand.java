@@ -1,11 +1,13 @@
 package com.nvm10.customer.command;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 @Data
 @Builder
+@Jacksonized
 public class CreateCustomerCommand {
 
     @TargetAggregateIdentifier

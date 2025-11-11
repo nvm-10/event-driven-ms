@@ -12,15 +12,14 @@ import lombok.*;
 public class Profile extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id", length = 100)
-    private String profileId;
-    @Column(name = "name", length = 100, nullable = false)
+    private Long profileId;
+    @Column(name = "name", length = 100)
     private String name;
-    @Column(name = "email", length = 100, nullable = false)
-    private String email;
     @Column(name = "mobile_number", length = 20, nullable = false)
     private String mobileNumber;
-    @Column(name = "active_sw", nullable = false)
+    @Column(name = "active_sw")
     private boolean activeSw = false;
     @Column(name = "account_number")
     private long accountNumber;

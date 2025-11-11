@@ -9,7 +9,9 @@ import com.nvm10.accounts.exception.ResourceNotFoundException;
 import com.nvm10.accounts.mapper.AccountsMapper;
 import com.nvm10.accounts.repository.AccountsRepository;
 import com.nvm10.accounts.service.IAccountsService;
+import com.nvm10.common.event.AccountDataChangeEvent;
 import lombok.AllArgsConstructor;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,6 +22,8 @@ import java.util.Random;
 public class AccountsServiceImpl  implements IAccountsService {
 
     private AccountsRepository accountsRepository;
+
+    private final EventGateway eventGateway;
 
     /**
      * @param mobileNumber - String
@@ -87,6 +91,10 @@ public class AccountsServiceImpl  implements IAccountsService {
         );
         account.setActiveSw(AccountsConstants.IN_ACTIVE_SW);
         accountsRepository.save(account);
+        AccountDataChangeEvent event = new AccountDataChangeEvent();
+        event.setMobileNumber(account.getMobileNumber());
+        event.setAccountNumber(null);
+        eventGateway.publish(event);
         return true;
     }
 
