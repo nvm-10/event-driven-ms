@@ -21,4 +21,13 @@ public class CardsFunction {
             log.info("Updated mobile number update event: {}", mobileNumberUpdateDto);
         };
     }
+
+    @Bean
+    public Consumer<MobileNumberUpdateDto> rollbackCardMobileNumber(ICardsService cardsService) {
+        return mobileNumberUpdateDto -> {
+            log.info("Received mobile number rollback event: {}", mobileNumberUpdateDto);
+            cardsService.rollbackCardMobileNumber(mobileNumberUpdateDto);
+            log.info("Rolled back mobile number rollback event: {}", mobileNumberUpdateDto);
+        };
+    }
 }

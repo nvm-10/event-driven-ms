@@ -9,6 +9,7 @@ import com.nvm10.customer.exception.ResourceNotFoundException;
 import com.nvm10.customer.mapper.CustomerMapper;
 import com.nvm10.customer.repository.CustomerRepository;
 import com.nvm10.customer.service.ICustomerService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -66,13 +67,25 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
+    @Transactional
     public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
         String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
         Customer customer = customerRepository.findByMobileNumberAndActiveSw(currentMobileNumber, true)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", currentMobileNumber));
         customer.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
         customerRepository.save(customer);
+        //throw new Exception("Simulated exception to test transaction rollback");
         updateAccountMobileNumber(mobileNumberUpdateDto);
+        return true;
+    }
+
+    @Override
+    public boolean rollbackCustomerMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Customer customer = customerRepository.findByMobileNumberAndActiveSw(newMobileNumber, true)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", newMobileNumber));
+        customer.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        customerRepository.save(customer);
         return true;
     }
 

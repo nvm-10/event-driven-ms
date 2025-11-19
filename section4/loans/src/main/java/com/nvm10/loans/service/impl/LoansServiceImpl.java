@@ -9,10 +9,12 @@ import com.nvm10.loans.exception.ResourceNotFoundException;
 import com.nvm10.loans.mapper.LoansMapper;
 import com.nvm10.loans.repository.LoansRepository;
 import com.nvm10.loans.service.ILoansService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Optional;
 import java.util.Random;
@@ -96,21 +98,37 @@ public class LoansServiceImpl implements ILoansService {
     }
 
     @Override
+    @Transactional
     public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
-        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
-        Loans loan = loansRepository.findByMobileNumberAndActiveSw(currentMobileNumber, LoansConstants.ACTIVE_SW)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan", "mobileNumber", currentMobileNumber));
-        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
-        loan.setMobileNumber(newMobileNumber);
-        loansRepository.save(loan);
-        updateMobileNumberStatus(mobileNumberUpdateDto);
-        return true;
+        boolean result = false;
+        try {
+            String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+            Loans loan = loansRepository.findByMobileNumberAndActiveSw(currentMobileNumber, LoansConstants.ACTIVE_SW)
+                    .orElseThrow(() -> new ResourceNotFoundException("Loan", "mobileNumber", currentMobileNumber));
+            String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+            loan.setMobileNumber(newMobileNumber);
+            loansRepository.save(loan);
+            throw new RuntimeException("Simulated exception to test transaction rollback");
+            //updateMobileNumberStatus(mobileNumberUpdateDto);
+            //result = true;
+        } catch (Exception e) {
+            log.error("Exception occurred while updating loan mobile number: {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            rollbackCardMobileNumber(mobileNumberUpdateDto);
+        }
+        return result;
     }
 
     private void updateMobileNumberStatus(MobileNumberUpdateDto mobileNumberUpdateDto) {
         log.info("Updating loan mobile number status");
         streamBridge.send("updateMobileNumberStatus-out-0", mobileNumberUpdateDto);
         log.info("Loan mobile number status updated");
+    }
+
+    private void rollbackCardMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Rolling back card mobile number update: {}", mobileNumberUpdateDto);
+        streamBridge.send("rollbackCardMobileNumber-out-0", mobileNumberUpdateDto);
+        log.info("Rolled back card mobile number update");
     }
 
 }

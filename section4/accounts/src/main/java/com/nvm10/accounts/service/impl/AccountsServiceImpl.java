@@ -9,10 +9,12 @@ import com.nvm10.accounts.mapper.AccountsMapper;
 import com.nvm10.accounts.repository.AccountsRepository;
 import com.nvm10.accounts.service.IAccountsService;
 import com.nvm10.common.dto.MobileNumberUpdateDto;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Optional;
 import java.util.Random;
@@ -95,13 +97,33 @@ public class AccountsServiceImpl  implements IAccountsService {
     }
 
     @Override
+    @Transactional
     public boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
-        String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
-        Accounts account = accountsRepository.findByMobileNumberAndActiveSw(currentMobileNumber, AccountsConstants.ACTIVE_SW)
-                .orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", currentMobileNumber));
-        account.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
-        accountsRepository.save(account);
-        updateCardMobileNumber(mobileNumberUpdateDto);
+        boolean result = false;
+        try {
+            String currentMobileNumber = mobileNumberUpdateDto.getCurrentMobileNumber();
+            Accounts account = accountsRepository.findByMobileNumberAndActiveSw(currentMobileNumber, AccountsConstants.ACTIVE_SW)
+                    .orElseThrow(() -> new ResourceNotFoundException("Account", "mobileNumber", currentMobileNumber));
+            account.setMobileNumber(mobileNumberUpdateDto.getNewMobileNumber());
+            accountsRepository.save(account);
+            updateCardMobileNumber(mobileNumberUpdateDto);
+            result = true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            rollbackCustomerMobileNumber(mobileNumberUpdateDto);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean rollbackAccountMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        String newMobileNumber = mobileNumberUpdateDto.getNewMobileNumber();
+        Accounts accounts = accountsRepository.findByMobileNumberAndActiveSw(newMobileNumber, true)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", newMobileNumber));
+        accounts.setMobileNumber(mobileNumberUpdateDto.getCurrentMobileNumber());
+        accountsRepository.save(accounts);
+        rollbackCustomerMobileNumber(mobileNumberUpdateDto);
         return true;
     }
 
@@ -112,5 +134,11 @@ public class AccountsServiceImpl  implements IAccountsService {
         log.info("Sent mobileNumberUpdateDto event to card service");
     }
 
+    private void rollbackCustomerMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto) {
+        log.info("Sending rollbackCustomerMobileNumber event to card service  {}",
+                mobileNumberUpdateDto);
+        streamBridge.send("rollbackCustomerMobileNumber-out-0", mobileNumberUpdateDto);
+        log.info("Sent rollbackCustomerMobileNumber event to card service");
+    }
 
 }

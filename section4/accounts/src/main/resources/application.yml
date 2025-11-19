@@ -24,7 +24,7 @@ spring:
     connection-timeout: 10s
   cloud:
     function:
-      definition: updateAccountMobileNumber
+      definition: updateAccountMobileNumber;rollbackAccountMobileNumber
     stream:
       bindings:
         updateAccountMobileNumber-in-0:
@@ -33,6 +33,13 @@ spring:
           group: ${spring.application.name}
         updateCardMobileNumber-out-0:
           destination: update-card-mobile-number-topic
+          content-type: application/json
+        rollbackCustomerMobileNumber-out-0:
+          destination: rollback-customer-mobile-number-topic
+          content-type: application/json
+        rollbackAccountMobileNumber-in-0:
+          destination: rollback-account-mobile-number-topic
+          group: ${spring.application.name}
           content-type: application/json
 
 eureka:
