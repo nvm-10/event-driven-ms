@@ -20,4 +20,12 @@ public class AccountsFunction {
             accountsService.updateMobileNumber(mobileNumberUpdateDto);
         };
     }
+
+    @Bean
+    public Consumer<MobileNumberUpdateDto> rollbackAccountMobileNumber(IAccountsService accountsService) {
+        return mobileNumberUpdateDto -> {
+            log.info("Rolling back mobile number for account {}", mobileNumberUpdateDto);
+            accountsService.rollbackAccountMobileNumber(mobileNumberUpdateDto);
+        };
+    }
 }

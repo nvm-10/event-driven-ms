@@ -34,4 +34,10 @@ public interface ICustomerService {
      */
     boolean updateMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto);
 
+    /**
+     * @param mobileNumberUpdateDto - MobileNumberUpdateDto Object
+     * @return boolean indicating if the rollback of Mobile Number is successful or not
+     */
+    boolean rollbackCustomerMobileNumber(MobileNumberUpdateDto mobileNumberUpdateDto);
+
 }
