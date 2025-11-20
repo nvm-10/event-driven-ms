@@ -1,0 +1,19 @@
+package com.nvm10.accounts;
+
+import com.nvm10.common.config.AxonConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+@SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
+@Import(AxonConfig.class)
+public class AccountsApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AccountsApplication.class, args);
+    }
+
+}
