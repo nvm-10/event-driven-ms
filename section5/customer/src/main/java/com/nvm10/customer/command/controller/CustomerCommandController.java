@@ -1,5 +1,7 @@
 package com.nvm10.customer.command.controller;
 
+import com.nvm10.common.command.UpdateCustomerMoblieNumberCommand;
+import com.nvm10.common.dto.UpdateMobileNumberDto;
 import com.nvm10.customer.command.CreateCustomerCommand;
 import com.nvm10.customer.command.DeleteCustomerCommand;
 import com.nvm10.customer.command.UpdateCustomerCommand;
@@ -65,6 +67,22 @@ public class CustomerCommandController {
                 .activeSw(CustomerConstants.IN_ACTIVE_SW)
                 .build();
         commandGateway.sendAndWait(deleteCommand);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));
+    }
+
+    @PatchMapping("/mobile-number")
+    public ResponseEntity<ResponseDto> updateMobileNumber(@RequestBody UpdateMobileNumberDto updateMobileNumberDto) {
+        UpdateCustomerMoblieNumberCommand updateCommand = UpdateCustomerMoblieNumberCommand.builder()
+                .customerId(updateMobileNumberDto.getCustomerId())
+                .newMobileNumber(updateMobileNumberDto.getNewMobileNumber())
+                .currentMobileNumber(updateMobileNumberDto.getCurrentMobileNumber())
+                .accountNumber(updateMobileNumberDto.getAccountNumber())
+                .cardNumber(updateMobileNumberDto.getCardNumber())
+                .loanNumber(updateMobileNumberDto.getLoanNumber())
+                .build();
+        commandGateway.sendAndWait(updateCommand);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));

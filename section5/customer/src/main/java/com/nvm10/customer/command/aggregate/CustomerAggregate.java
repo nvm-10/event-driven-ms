@@ -1,5 +1,7 @@
 package com.nvm10.customer.command.aggregate;
 
+import com.nvm10.common.command.UpdateCustomerMoblieNumberCommand;
+import com.nvm10.common.event.CustomerMobileNumberUpdatedEvent;
 import com.nvm10.customer.command.CreateCustomerCommand;
 import com.nvm10.customer.command.DeleteCustomerCommand;
 import com.nvm10.customer.command.UpdateCustomerCommand;
@@ -73,5 +75,17 @@ public class CustomerAggregate {
     @EventSourcingHandler
     public void on(CustomerDeletedEvent customerDeletedEvent) {
         this.activeSw = customerDeletedEvent.isActiveSw();
+    }
+
+    @CommandHandler
+    public void on(UpdateCustomerMoblieNumberCommand updateCustomerMoblieNumberCommand) {
+        CustomerMobileNumberUpdatedEvent event= new CustomerMobileNumberUpdatedEvent();
+        BeanUtils.copyProperties(updateCustomerMoblieNumberCommand, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(CustomerMobileNumberUpdatedEvent customerMobileNumberUpdatedEvent) {
+        this.mobileNumber = customerMobileNumberUpdatedEvent.getNewMobileNumber();
     }
 }

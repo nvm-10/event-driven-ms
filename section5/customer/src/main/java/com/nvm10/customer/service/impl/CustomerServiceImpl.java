@@ -1,5 +1,6 @@
 package com.nvm10.customer.service.impl;
 
+import com.nvm10.common.event.CustomerMobileNumberUpdatedEvent;
 import com.nvm10.customer.command.event.CustomerUpdatedEvent;
 import com.nvm10.customer.constants.CustomerConstants;
 import com.nvm10.customer.dto.CustomerDto;
@@ -58,5 +59,15 @@ public class CustomerServiceImpl implements ICustomerService {
         customerRepository.save(customer);
         return true;
     }
+
+    @Override
+    public boolean updateCustomerMobileNumberRollback(String currenMobileNumber, String newMobileNumber) {
+        Customer customer =  customerRepository.findByMobileNumberAndActiveSw(currenMobileNumber, true)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", currenMobileNumber));
+        customer.setMobileNumber(newMobileNumber);
+        customerRepository.save(customer);
+        return true;
+    }
+
 
 }

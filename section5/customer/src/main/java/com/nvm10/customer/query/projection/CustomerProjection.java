@@ -1,6 +1,8 @@
 package com.nvm10.customer.query.projection;
 
+import com.nvm10.common.event.CustomerMobileNumberUpdatedEvent;
 import com.nvm10.customer.command.event.CustomerCreatedEvent;
+import com.nvm10.customer.command.event.CustomerDeletedEvent;
 import com.nvm10.customer.command.event.CustomerUpdatedEvent;
 import com.nvm10.customer.entity.Customer;
 import com.nvm10.customer.service.ICustomerService;
@@ -27,5 +29,10 @@ public class CustomerProjection {
     @EventHandler
     public void on(CustomerUpdatedEvent event) {
         customerService.updateCustomer(event);
+    }
+
+    @EventHandler
+    public void on(CustomerMobileNumberUpdatedEvent event) {
+
     }
 }
