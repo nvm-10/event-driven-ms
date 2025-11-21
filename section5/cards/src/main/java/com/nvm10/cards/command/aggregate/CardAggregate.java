@@ -6,6 +6,8 @@ import com.nvm10.cards.command.UpdateCardCommand;
 import com.nvm10.cards.command.event.CardCreatedEvent;
 import com.nvm10.cards.command.event.CardDeletedEvent;
 import com.nvm10.cards.command.event.CardUpdatedEvent;
+import com.nvm10.common.command.UpdateCardMobileNumberCommand;
+import com.nvm10.common.event.CardMobileNumberUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -64,5 +66,16 @@ public class CardAggregate {
         AggregateLifecycle.apply(event);
     }
 
+    @CommandHandler
+    public void on(UpdateCardMobileNumberCommand updateCommand) {
+        CardMobileNumberUpdatedEvent event = new CardMobileNumberUpdatedEvent();
+        BeanUtils.copyProperties(updateCommand, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(CardMobileNumberUpdatedEvent event) {
+        this.mobileNumber = event.getNewMobileNumber();
+    }
 
 }

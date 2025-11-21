@@ -91,5 +91,13 @@ public class CardsServiceImpl implements ICardsService {
         return true;
     }
 
+    @Override
+    public boolean updateCardMobileNumber(String currentMobileNumber, String newMobileNumber) {
+        Cards card = cardsRepository.findByMobileNumberAndActiveSw(currentMobileNumber, true)
+                .orElseThrow(() -> new ResourceNotFoundException("Card", "mobileNumber", currentMobileNumber));
+        card.setMobileNumber(newMobileNumber);
+        return true;
+    }
+
 
 }

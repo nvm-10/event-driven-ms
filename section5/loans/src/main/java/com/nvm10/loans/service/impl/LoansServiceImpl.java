@@ -1,5 +1,6 @@
 package com.nvm10.loans.service.impl;
 
+import com.nvm10.loans.command.event.LoanCreatedEvent;
 import com.nvm10.loans.constants.LoansConstants;
 import com.nvm10.loans.dto.LoansDto;
 import com.nvm10.loans.entity.Loans;
@@ -87,6 +88,15 @@ public class LoansServiceImpl implements ILoansService {
                 );
         loan.setActiveSw(LoansConstants.IN_ACTIVE_SW);
         loansRepository.save(loan);
+        return true;
+    }
+
+    @Override
+    public boolean updateLoanMobileNumber(String currentMobileNumber, String newMobileNumber) {
+        Loans loans = loansRepository.findByMobileNumberAndActiveSw(currentMobileNumber, true)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan", "mobileNumber", currentMobileNumber));
+        loans.setMobileNumber(newMobileNumber);
+        loansRepository.save(loans);
         return true;
     }
 

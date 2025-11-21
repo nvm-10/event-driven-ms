@@ -1,5 +1,7 @@
 package com.nvm10.loans.command.aggregate;
 
+import com.nvm10.common.command.UpdateLoanMobileNumberCommand;
+import com.nvm10.common.event.CardMobileNumberUpdatedEvent;
 import com.nvm10.loans.command.CreateLoanCommand;
 import com.nvm10.loans.command.DeleteLoanCommand;
 import com.nvm10.loans.command.UpdateLoanCommand;
@@ -8,6 +10,7 @@ import com.nvm10.loans.command.event.LoanDeletedEvent;
 import com.nvm10.loans.command.event.LoanUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import org.axonframework.spring.stereotype.Aggregate;
@@ -34,7 +37,7 @@ public class LoanAggregate {
         AggregateLifecycle.apply(event);
     }
 
-    @EventHandler
+    @EventSourcingHandler
     public void on(LoanCreatedEvent event) {
         this.mobileNumber = event.getMobileNumber();
     }
@@ -46,7 +49,7 @@ public class LoanAggregate {
         AggregateLifecycle.apply(event);
     }
 
-    @EventHandler
+    @EventSourcingHandler
     public void on(LoanUpdatedEvent event) {
         this.loanNumber = event.getLoanNumber();
         this.mobileNumber = event.getMobileNumber();
@@ -62,5 +65,17 @@ public class LoanAggregate {
         LoanDeletedEvent event = new LoanDeletedEvent();
         BeanUtils.copyProperties(command, event);
         AggregateLifecycle.apply(event);
+    }
+
+    @CommandHandler
+    public void on(UpdateLoanMobileNumberCommand command) {
+        CardMobileNumberUpdatedEvent event = new CardMobileNumberUpdatedEvent();
+        BeanUtils.copyProperties(command, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(CardMobileNumberUpdatedEvent event) {
+        this.mobileNumber = event.getNewMobileNumber();
     }
 }

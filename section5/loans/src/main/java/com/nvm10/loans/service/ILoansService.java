@@ -1,5 +1,7 @@
 package com.nvm10.loans.service;
 
+import com.nvm10.loans.command.CreateLoanCommand;
+import com.nvm10.loans.command.event.LoanCreatedEvent;
 import com.nvm10.loans.dto.LoansDto;
 
 public interface ILoansService {
@@ -30,5 +32,13 @@ public interface ILoansService {
      * @return boolean indicating if the delete of loan details is successful or not
      */
     boolean deleteLoan(Long loanNumber);
+
+    /**
+     *
+     * @param currentMobileNumber - Current Mobile Number
+     * @param newMobileNumber - New Mobile Number
+     * @return boolean indicating if the update of Mobile Number is successful or not
+     */
+    boolean updateLoanMobileNumber(String currentMobileNumber, String newMobileNumber);
 
 }

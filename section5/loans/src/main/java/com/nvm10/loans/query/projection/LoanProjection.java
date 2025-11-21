@@ -1,0 +1,32 @@
+package com.nvm10.loans.query.projection;
+
+import com.nvm10.common.command.UpdateLoanMobileNumberCommand;
+import com.nvm10.common.event.LoanMobileNumberUpdatedEvent;
+import com.nvm10.loans.command.CreateLoanCommand;
+import com.nvm10.loans.command.event.LoanCreatedEvent;
+import com.nvm10.loans.service.ILoansService;
+import lombok.RequiredArgsConstructor;
+import org.axonframework.commandhandling.CommandHandler;
+import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateLifecycle;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class LoanProjection {
+
+    private final ILoansService loansService;
+
+    @EventHandler
+    public void on(LoanCreatedEvent event) {
+        loansService.createLoan(event.getMobileNumber());
+    }
+
+    @EventHandler
+    public void on(LoanMobileNumberUpdatedEvent event) {
+        loansService.updateLoanMobileNumber(event.getCurrentMobileNumber(), event.getNewMobileNumber());
+    }
+
+}

@@ -6,6 +6,8 @@ import com.nvm10.accounts.command.UpdateAccountCommand;
 import com.nvm10.accounts.command.event.AccountCreatedEvent;
 import com.nvm10.accounts.command.event.AccountDeletedEvent;
 import com.nvm10.accounts.command.event.AccountUpdatedEvent;
+import com.nvm10.common.command.UpdateAccountMobileNumberCommand;
+import com.nvm10.common.event.AccountMobileNumberUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateLifecycle;
@@ -34,9 +36,7 @@ public class AccountAggregate {
 
     @EventSourcingHandler
     public void on(AccountCreatedEvent event) {
-        // Initialize the aggregate identifier from the creation event
         this.mobileNumber = event.getMobileNumber();
-        // Other attributes may be populated if present on the event
         this.accountNumber = event.getAccountNumber();
         this.accountType = event.getAccountType();
         this.branchAddress = event.getBranchAddress();
@@ -68,5 +68,17 @@ public class AccountAggregate {
     public void on(AccountDeletedEvent event) {
         this.accountNumber = event.getAccountNumber();
         this.activeSw = event.isActiveSw();
+    }
+
+    @CommandHandler
+    public void on(UpdateAccountMobileNumberCommand command) {
+        AccountMobileNumberUpdatedEvent event = new AccountMobileNumberUpdatedEvent();
+        BeanUtils.copyProperties(command, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(AccountMobileNumberUpdatedEvent event) {
+        this.mobileNumber = event.getNewMobileNumber();
     }
 }

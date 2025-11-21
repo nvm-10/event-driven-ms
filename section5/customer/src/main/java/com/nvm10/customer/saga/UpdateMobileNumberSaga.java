@@ -1,13 +1,16 @@
 package com.nvm10.customer.saga;
 
-import com.nvm10.common.command.RollbackCustomerMobileNumberCommand;
-import com.nvm10.common.command.UpdateAccountMobileNumberCommand;
+import com.nvm10.common.command.*;
+import com.nvm10.common.event.AccountMobileNumberUpdatedEvent;
+import com.nvm10.common.event.CardMobileNumberUpdatedEvent;
 import com.nvm10.common.event.CustomerMobileNumberUpdatedEvent;
+import com.nvm10.common.event.LoanMobileNumberUpdatedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.CommandResultMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
 import org.axonframework.modelling.saga.StartSaga;
 import org.axonframework.spring.stereotype.Saga;
@@ -35,11 +38,10 @@ public class UpdateMobileNumberSaga {
                 .loanNumber(event.getLoanNumber())
                 .build();
         commandGateway.send(command, new CommandCallback<>() {
-
             @Override
             public void onResult(@Nonnull CommandMessage<? extends UpdateAccountMobileNumberCommand> commandMessage, @Nonnull CommandResultMessage<?> commandResultMessage) {
                 if(commandResultMessage.isExceptional()) {
-                    log.error("Saga Event 1 [End] : Failed to process UpdateAccountMobileNumberCommand for Customer ID: {}",
+                    log.error("Saga Event 1 : Failed to process UpdateAccountMobileNumberCommand for Customer ID: {}",
                             event.getCustomerId(), commandResultMessage.exceptionResult());
                     RollbackCustomerMobileNumberCommand rollbackCustomerMobileNumberCommand = RollbackCustomerMobileNumberCommand.builder()
                             .customerId(event.getCustomerId())
@@ -51,5 +53,75 @@ public class UpdateMobileNumberSaga {
                 }
             }
         });
+    }
+
+    @SagaEventHandler(associationProperty = "accountNumber")
+    public void on(AccountMobileNumberUpdatedEvent event) {
+        log.info("Saga Event 2 : Recieved AccountMobileNumberUpdatedEvent for Account Number: {}",
+                event.getAccountNumber());
+        UpdateCardMobileNumberCommand command = UpdateCardMobileNumberCommand.builder()
+                .customerId(event.getCustomerId())
+                .currentMobileNumber(event.getCurrentMobileNumber())
+                .newMobileNumber(event.getNewMobileNumber())
+                .accountNumber(event.getAccountNumber())
+                .cardNumber(event.getCardNumber())
+                .loanNumber(event.getLoanNumber())
+                .build();
+        commandGateway.send(command, new CommandCallback<>() {
+            @Override
+            public void onResult(@Nonnull CommandMessage<? extends UpdateCardMobileNumberCommand> commandMessage,
+                                 @Nonnull CommandResultMessage<?> commandResultMessage) {
+                if(commandResultMessage.isExceptional()) {
+                    log.error("Saga Event 2 : Failed to process UpdateCardMobileNumberCommand for Account Number: {}",
+                            event.getAccountNumber(), commandResultMessage.exceptionResult());
+                    RollbackAccountMobileNumberCommand rollbackAccountMobileNumberCommand = RollbackAccountMobileNumberCommand.builder()
+                            .customerId(event.getCustomerId())
+                            .accountNumber(event.getAccountNumber())
+                            .currentMobileNumber(event.getCurrentMobileNumber())
+                            .newMobileNumber(event.getNewMobileNumber())
+                            .errorMsg(commandResultMessage.exceptionResult().getMessage())
+                            .build();
+                    commandGateway.sendAndWait(rollbackAccountMobileNumberCommand);
+                }
+            }
+        });
+    }
+
+    @SagaEventHandler(associationProperty = "cardNumber")
+    public void on(CardMobileNumberUpdatedEvent event) {
+        log.info("Saga Event 3 : Recieved CardMobileNumberUpdatedEvent for cardNumber Number: {}",
+                event.getCardNumber());
+        UpdateLoanMobileNumberCommand command = UpdateLoanMobileNumberCommand.builder()
+                .customerId(event.getCustomerId())
+                .currentMobileNumber(event.getCurrentMobileNumber())
+                .newMobileNumber(event.getNewMobileNumber())
+                .accountNumber(event.getAccountNumber())
+                .cardNumber(event.getCardNumber())
+                .loanNumber(event.getLoanNumber())
+                .build();
+        commandGateway.send(command, new CommandCallback<>() {
+            @Override
+            public void onResult(@Nonnull CommandMessage<? extends UpdateLoanMobileNumberCommand> commandMessage,
+                                 @Nonnull CommandResultMessage<?> commandResultMessage) {
+                log.error("Saga Event 3 : Completed processing UpdateLoanMobileNumberCommand for cardNumber Number: {}",
+                        event.getCardNumber());
+                RollbackCardMobileNumberCommand command = RollbackCardMobileNumberCommand.builder()
+                        .customerId(event.getCustomerId())
+                        .accountNumber(event.getAccountNumber())
+                        .cardNumber(event.getCardNumber())
+                        .currentMobileNumber(event.getCurrentMobileNumber())
+                        .newMobileNumber(event.getNewMobileNumber())
+                        .errorMsg(commandResultMessage.exceptionResult().getMessage())
+                        .build();
+                commandGateway.sendAndWait(command);
+            }
+        });
+    }
+
+    @EndSaga
+    @SagaEventHandler(associationProperty = "loanNumber")
+    public void on(LoanMobileNumberUpdatedEvent event) {
+        log.info("Saga Event 4 [End] : Recieved LoanMobileNumberUpdatedEvent for Loan Number: {}",
+                event.getLoanNumber());
     }
 }

@@ -4,6 +4,7 @@ import com.nvm10.cards.command.event.CardCreatedEvent;
 import com.nvm10.cards.command.event.CardDeletedEvent;
 import com.nvm10.cards.command.event.CardUpdatedEvent;
 import com.nvm10.cards.service.ICardsService;
+import com.nvm10.common.event.CardMobileNumberUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
@@ -27,5 +28,10 @@ public class CardProjection {
     @EventHandler
     public void on(CardDeletedEvent event) {
         cardsService.deleteCard(event.getCardNumber());
+    }
+
+    @EventHandler
+    public void on(CardMobileNumberUpdatedEvent event) {
+        cardsService.updateCardMobileNumber(event.getCurrentMobileNumber(), event.getNewMobileNumber());
     }
 }
