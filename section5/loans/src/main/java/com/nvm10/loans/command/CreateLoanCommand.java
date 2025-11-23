@@ -9,5 +9,13 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 public class CreateLoanCommand {
 
     @TargetAggregateIdentifier
-    private String mobileNumber;
+    private final Long loanNumber;
+    private final String mobileNumber;
+    private final String loanType;
+    private final String loanStatus;
+    private final int totalLoan;
+    private final int amountPaid;
+    private final int outstandingAmount;
+    private final boolean activeSw;
+
 }

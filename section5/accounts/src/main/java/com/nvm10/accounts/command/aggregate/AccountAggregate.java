@@ -6,7 +6,9 @@ import com.nvm10.accounts.command.UpdateAccountCommand;
 import com.nvm10.accounts.command.event.AccountCreatedEvent;
 import com.nvm10.accounts.command.event.AccountDeletedEvent;
 import com.nvm10.accounts.command.event.AccountUpdatedEvent;
+import com.nvm10.common.command.RollbackAccountMobileNumberCommand;
 import com.nvm10.common.command.UpdateAccountMobileNumberCommand;
+import com.nvm10.common.event.AccountMobileNumberRollbackedEvent;
 import com.nvm10.common.event.AccountMobileNumberUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -18,12 +20,13 @@ import org.springframework.beans.BeanUtils;
 @Aggregate
 public class AccountAggregate {
 
-    @AggregateIdentifier
     private String mobileNumber;
+    @AggregateIdentifier
     private Long accountNumber;
     private String accountType;
     private String branchAddress;
     private boolean activeSw;
+    private String errorMsg;
 
     public AccountAggregate() {}
 
@@ -80,5 +83,18 @@ public class AccountAggregate {
     @EventSourcingHandler
     public void on(AccountMobileNumberUpdatedEvent event) {
         this.mobileNumber = event.getNewMobileNumber();
+    }
+
+    @CommandHandler
+    public void on(RollbackAccountMobileNumberCommand command) {
+        AccountMobileNumberRollbackedEvent event = new AccountMobileNumberRollbackedEvent();
+        BeanUtils.copyProperties(command, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(AccountMobileNumberRollbackedEvent event) {
+        this.mobileNumber = event.getCurrentMobileNumber();
+        this.errorMsg = event.getErrorMsg();
     }
 }

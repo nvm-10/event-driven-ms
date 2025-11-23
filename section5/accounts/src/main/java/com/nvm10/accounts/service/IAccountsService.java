@@ -9,9 +9,9 @@ public interface IAccountsService {
 
     /**
      *
-     * @param mobileNumber - Input Mobile Number
+     * @param account - Accounts object
      */
-    void createAccount(String mobileNumber);
+    void createAccount(Accounts account);
 
     /**
      *

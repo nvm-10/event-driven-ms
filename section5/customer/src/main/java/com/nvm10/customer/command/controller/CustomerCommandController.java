@@ -8,10 +8,14 @@ import com.nvm10.customer.command.UpdateCustomerCommand;
 import com.nvm10.customer.constants.CustomerConstants;
 import com.nvm10.customer.dto.CustomerDto;
 import com.nvm10.customer.dto.ResponseDto;
+import com.nvm10.customer.query.UpdateMobileNumberSagaQuery;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +31,7 @@ import java.util.UUID;
 public class CustomerCommandController {
 
     private final CommandGateway commandGateway;
+    private final QueryGateway queryGateway;
 
     @PostMapping("/create")
     public ResponseEntity<ResponseDto> createCustomer(@Valid @RequestBody CustomerDto customerDto) {
@@ -73,7 +78,7 @@ public class CustomerCommandController {
     }
 
     @PatchMapping("/mobile-number")
-    public ResponseEntity<ResponseDto> updateMobileNumber(@RequestBody UpdateMobileNumberDto updateMobileNumberDto) {
+    public ResponseEntity<ResponseDto> updateMobileNumber(@Valid @RequestBody UpdateMobileNumberDto updateMobileNumberDto) {
         UpdateCustomerMoblieNumberCommand updateCommand = UpdateCustomerMoblieNumberCommand.builder()
                 .customerId(updateMobileNumberDto.getCustomerId())
                 .newMobileNumber(updateMobileNumberDto.getNewMobileNumber())
@@ -82,9 +87,14 @@ public class CustomerCommandController {
                 .cardNumber(updateMobileNumberDto.getCardNumber())
                 .loanNumber(updateMobileNumberDto.getLoanNumber())
                 .build();
-        commandGateway.sendAndWait(updateCommand);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ResponseDto(CustomerConstants.STATUS_200, CustomerConstants.MESSAGE_200));
+        try (SubscriptionQueryResult<ResponseDto, ResponseDto> queryResult = queryGateway.
+                subscriptionQuery(new UpdateMobileNumberSagaQuery(),
+                        ResponseTypes.instanceOf(ResponseDto.class),
+                        ResponseTypes.instanceOf(ResponseDto.class))) {
+            commandGateway.sendAndWait(updateCommand);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(queryResult.updates().blockFirst());
+        }
     }
 }

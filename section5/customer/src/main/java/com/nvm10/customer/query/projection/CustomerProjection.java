@@ -1,5 +1,6 @@
 package com.nvm10.customer.query.projection;
 
+import com.nvm10.common.event.CustomerMobileNumberRollbackedEvent;
 import com.nvm10.common.event.CustomerMobileNumberUpdatedEvent;
 import com.nvm10.customer.command.event.CustomerCreatedEvent;
 import com.nvm10.customer.command.event.CustomerDeletedEvent;
@@ -33,6 +34,13 @@ public class CustomerProjection {
 
     @EventHandler
     public void on(CustomerMobileNumberUpdatedEvent event) {
-
+        customerService.updateCustomerMobileNumber(event.getCurrentMobileNumber(), event.getNewMobileNumber());
     }
+
+    @EventHandler
+    public void on(CustomerMobileNumberRollbackedEvent event) {
+        customerService.updateCustomerMobileNumberRollback(event.getNewMobileNumber(),  event.getNewMobileNumber());
+    }
+
+
 }

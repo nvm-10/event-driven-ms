@@ -22,32 +22,32 @@ public class AccountsServiceImpl  implements IAccountsService {
     private AccountsRepository accountsRepository;
 
     /**
-     * @param mobileNumber - String
+     * @param accounts - Accounts object
      */
     @Override
-    public void createAccount(String mobileNumber) {
-        Optional<Accounts> optionalAccounts= accountsRepository.findByMobileNumberAndActiveSw(mobileNumber,
-                AccountsConstants.ACTIVE_SW);
+    public void createAccount(Accounts accounts) {
+        Optional<Accounts> optionalAccounts= accountsRepository.findByMobileNumberAndActiveSw(accounts.getMobileNumber(),
+                accounts.isActiveSw());
         if(optionalAccounts.isPresent()){
-            throw new AccountAlreadyExistsException("Account already registered with given mobileNumber "+mobileNumber);
+            throw new AccountAlreadyExistsException("Account already registered with given mobileNumber "+accounts.getMobileNumber());
         }
-        accountsRepository.save(createNewAccount(mobileNumber));
+        accountsRepository.save(accounts);
     }
 
-    /**
-     * @param mobileNumber - String
-     * @return the new account details
-     */
-    private Accounts createNewAccount(String mobileNumber) {
-        Accounts newAccount = new Accounts();
-        newAccount.setMobileNumber(mobileNumber);
-        long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
-        newAccount.setAccountNumber(randomAccNumber);
-        newAccount.setAccountType(AccountsConstants.SAVINGS);
-        newAccount.setBranchAddress(AccountsConstants.ADDRESS);
-        newAccount.setActiveSw(AccountsConstants.ACTIVE_SW);
-        return newAccount;
-    }
+//    /**
+//     * @param mobileNumber - String
+//     * @return the new account details
+//     */
+//    private Accounts createNewAccount(String mobileNumber) {
+//        Accounts newAccount = new Accounts();
+//        newAccount.setMobileNumber(mobileNumber);
+//        //long randomAccNumber = 1000000000L + new Random().nextInt(900000000);
+//        newAccount.setAccountNumber(randomAccNumber);
+//        newAccount.setAccountType(AccountsConstants.SAVINGS);
+//        newAccount.setBranchAddress(AccountsConstants.ADDRESS);
+//        newAccount.setActiveSw(AccountsConstants.ACTIVE_SW);
+//        return newAccount;
+//    }
 
     /**
      * @param mobileNumber - Input Mobile Number

@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Random;
+
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @Validated
@@ -28,9 +30,14 @@ public class LoanCommandController {
     public ResponseEntity<ResponseDto> createLoan(@RequestParam("mobileNumber")
                                                   @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
                                                   String mobileNumber) {
-        CreateLoanCommand command = CreateLoanCommand.builder()
-                .mobileNumber(mobileNumber).build();
-        commandGateway.send(command);
+        long randomLoanNumber = 1000000000L + new Random().nextInt(900000000);
+        CreateLoanCommand createCommand = CreateLoanCommand.builder()
+                .loanNumber(randomLoanNumber).mobileNumber(mobileNumber)
+                .loanStatus("APPROVED")
+                .loanType(LoansConstants.HOME_LOAN).totalLoan(LoansConstants.NEW_LOAN_LIMIT)
+                .amountPaid(0).outstandingAmount(LoansConstants.NEW_LOAN_LIMIT)
+                .activeSw(LoansConstants.ACTIVE_SW).build();
+        commandGateway.send(createCommand);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDto(LoansConstants.STATUS_201, LoansConstants.MESSAGE_201));

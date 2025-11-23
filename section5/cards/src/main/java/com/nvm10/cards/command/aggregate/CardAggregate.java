@@ -6,39 +6,49 @@ import com.nvm10.cards.command.UpdateCardCommand;
 import com.nvm10.cards.command.event.CardCreatedEvent;
 import com.nvm10.cards.command.event.CardDeletedEvent;
 import com.nvm10.cards.command.event.CardUpdatedEvent;
+import com.nvm10.common.command.RollbackCardMobileNumberCommand;
 import com.nvm10.common.command.UpdateCardMobileNumberCommand;
+import com.nvm10.common.event.CardMobileNumberRollbackedEvent;
 import com.nvm10.common.event.CardMobileNumberUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.BeanUtils;
 
 @Aggregate
 public class CardAggregate {
 
-    private Long cardNumber;
     @AggregateIdentifier
+    private Long cardNumber;
     private String mobileNumber;
     private String cardType;
     private int totalLimit;
     private int amountUsed;
     private int availableAmount;
     private boolean activeSw;
+    private String errorMsg;
 
     public CardAggregate() {}
 
     @CommandHandler
     public CardAggregate(CreateCardCommand createCommand) {
-        CardCreatedEvent event = new CardCreatedEvent();
-        BeanUtils.copyProperties(createCommand, event);
-        AggregateLifecycle.apply(event);
+        CardCreatedEvent cardCreatedEvent = new CardCreatedEvent();
+        BeanUtils.copyProperties(createCommand, cardCreatedEvent);
+        AggregateLifecycle.apply(cardCreatedEvent);
     }
 
     @EventSourcingHandler
     public void on(CardCreatedEvent event) {
+        this.cardNumber = event.getCardNumber();
         this.mobileNumber = event.getMobileNumber();
+        this.cardType = event.getCardType();
+        this.totalLimit = event.getTotalLimit();
+        this.amountUsed = event.getAmountUsed();
+        this.availableAmount = event.getAvailableAmount();
+        this.activeSw = event.isActiveSw();
     }
 
     @CommandHandler
@@ -76,6 +86,19 @@ public class CardAggregate {
     @EventSourcingHandler
     public void on(CardMobileNumberUpdatedEvent event) {
         this.mobileNumber = event.getNewMobileNumber();
+    }
+
+    @CommandHandler
+    public void on(RollbackCardMobileNumberCommand rollbackCommand) {
+        CardMobileNumberRollbackedEvent event = new CardMobileNumberRollbackedEvent();
+        BeanUtils.copyProperties(rollbackCommand, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(CardMobileNumberRollbackedEvent event) {
+        this.mobileNumber = event.getCurrentMobileNumber();
+        this.errorMsg = event.getErrorMsg();
     }
 
 }

@@ -1,6 +1,8 @@
 package com.nvm10.customer.command.aggregate;
 
+import com.nvm10.common.command.RollbackCustomerMobileNumberCommand;
 import com.nvm10.common.command.UpdateCustomerMoblieNumberCommand;
+import com.nvm10.common.event.CustomerMobileNumberRollbackedEvent;
 import com.nvm10.common.event.CustomerMobileNumberUpdatedEvent;
 import com.nvm10.customer.command.CreateCustomerCommand;
 import com.nvm10.customer.command.DeleteCustomerCommand;
@@ -28,6 +30,7 @@ public class CustomerAggregate {
     public String email;
     public String mobileNumber;
     public boolean activeSw;
+    public String errorMsg;
 
     public CustomerAggregate() {}
 
@@ -87,5 +90,18 @@ public class CustomerAggregate {
     @EventSourcingHandler
     public void on(CustomerMobileNumberUpdatedEvent customerMobileNumberUpdatedEvent) {
         this.mobileNumber = customerMobileNumberUpdatedEvent.getNewMobileNumber();
+    }
+
+    @CommandHandler
+    public void on(RollbackCustomerMobileNumberCommand command) {
+        CustomerMobileNumberRollbackedEvent event = new CustomerMobileNumberRollbackedEvent();
+        BeanUtils.copyProperties(command, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(CustomerMobileNumberRollbackedEvent event) {
+        this.mobileNumber = event.getCurrentMobileNumber();
+        this.errorMsg = event.getErrorMsg();
     }
 }
